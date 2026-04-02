@@ -1,0 +1,35 @@
+{
+    "name": "project/rolemodel",
+    "description": "Bitrix 24 RoleModel Project",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "wikimedia/composer-merge-plugin": "^2.0"
+    },
+    "config": {
+        "platform": {
+          "php": "8.3.99"
+        },
+        "vendor-dir": "../vendor",
+        "allow-plugins": {
+            "wikimedia/composer-merge-plugin": true
+        }
+    },
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "../bitrix/composer-bx.json"
+            ],
+            "recurse": true,
+            "replace": false,
+            "ignore-duplicates": false
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "RoleModel\\Cli\\": "modules/rolemodel.cli/lib/",
+            "RoleModel\\Webhook\\": "modules/rolemodel.webhook/lib/"
+        }
+    }
+}

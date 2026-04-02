@@ -1,0 +1,39 @@
+issuer: http://127.0.0.1:5556/dex
+
+storage:
+  type: sqlite3
+  config:
+    file: /var/dex/dex.db
+
+web:
+  http: 0.0.0.0:5556
+
+connectors:
+  - type: gitea
+    id: gitea
+    name: Gitea
+    config:
+      baseURL: http://1127.0.0.1:3000
+      clientID: dex-client-id
+      clientSecret: dex-client-secret
+      redirectURI: http://127.0.0.1:5556/dex/callback
+
+staticClients:
+  - id: grafana
+    redirectURIs:
+      - http://127.0.0.2:3000/login/generic_oauth
+    name: Grafana
+    secret: grafana-dex-secret
+
+  - id: rolemodel
+    redirectURIs:
+      - http://127.0.0.1:3100/auth/callback
+    name: RoleModel UI
+    secret: rolemodel-dex-secret
+
+  - id: bitrix-client-id
+    name: "Bitrix24"
+    secret: bitrix-client-secret
+    redirectURIs:
+      - http://127.0.0.1:8080/bitrix/tools/oauth/dex.php
+  
