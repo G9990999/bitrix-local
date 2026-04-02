@@ -92,7 +92,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "👋 Привет! Я бот техподдержки тендерного отдела ITR.\n\n"
+        "👋 Привет! Я бот техподдержки тендерного отдела.\n\n"
         "Задайте вопрос, например:\n"
         "• *создать заявку на расходование ДС*\n"
         "• *как зарегистрировать тендер*\n"
