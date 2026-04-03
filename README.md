@@ -16,6 +16,8 @@ server-ansible (127.0.0.1)
 ├── gitea            :3000   — Локальный Git-сервер
 ├── dex              :5556   — OAuth2/OIDC SSO-провайдер
 ├── tender-bot       :3102   — Telegram-бот (LangChain + GigaChat)
+├── docs-parser      :8001   — Парсер документации its.1c.ru → PostgreSQL
+├── admin-dashboard  :5173   — Vite+React+HeroUI панель администратора
 └── bitrix-setup     (init)  — Автоматическая инициализация
 ```
 server-zabbix (127.0.0.2)
@@ -104,6 +106,11 @@ docker exec bitrix-php bx <команда>
 | `bx:migrate` | Запустить миграции БД |
 | `bx:backup` | Создать резервную копию |
 | `bx:deploy` | Задеплоить конфиги Nginx/Dex |
+| `bx:parser` | Список подписанных сервисов на парсинг |
+| `bx:parser tender-bot` | Подписать сервис tender-bot + зарегистрировать webhook |
+| `bx:role` | Список всех должностей и прикреплённых ролей |
+| `bx:role install` | Загрузить должности из CSV в PostgreSQL |
+| `bx:role generator` | Сгенерировать матрицу доступов через GigaChat |
 
 ### Примеры
 
@@ -116,7 +123,67 @@ docker exec bitrix-php bx bx:webhook-reg
 
 # Полная диагностика
 docker exec bitrix-php bx bx:health
+
+# Подписать tender-bot на парсинг данных
+docker exec bitrix-php bx bx:parser tender-bot
+
+# Загрузить каталог должностей из CSV
+docker exec bitrix-php bx bx:role install
+
+# Сгенерировать матрицу прав для 10 должностей
+docker exec bitrix-php bx bx:role generator
 ```
+
+## Admin Dashboard
+
+Веб-панель администратора Bitrix24 доступна на порту **5173**:
+
+```
+http://localhost:5173
+```
+
+Страницы:
+- `/` — Главный дашборд с быстрыми ссылками и командами CLI
+- `/assets` — Учёт ИТ-активов (SnipeIT)
+- `/licenses` — Управление лицензиями с индикатором использования
+- `/users` — Пользователи Bitrix24
+- `/roles` — Каталог должностей и матрица прав доступа
+- `/audit` — Аудит: кто имеет доступ к каким ресурсам
+
+## Модули
+
+### rolemodel.cli
+
+CLI-модуль для автоматизации Bitrix24.
+
+**Новые команды (issue #1):**
+- `bx:parser` — управление подписками сервисов на парсинг данных
+- `bx:role` — каталог должностей и ролей доступа через GigaChat
+
+### snipeit.itrix
+
+Bitrix-модуль учёта ИТ-активов и лицензий.
+- D7 ORM: `AssetTable`, `LicenseTable`, `UserAssignmentTable`
+- Сервисный слой: `AssetService`, `LicenseService`, `AssignmentService`
+- Аудит назначений (кто имеет доступ к чему)
+- PostgreSQL
+
+### chatbot.test
+
+Модуль тестирования tender-bot.
+
+```bash
+cd server-ansible/home/upload/local/modules/chatbot.test
+pip install -r requirements.txt
+pytest tests/test_tender_bot.py -v -k "not integration"
+```
+
+### docs-parser
+
+Python-сервис периодического обновления Базы Знаний из документации its.1c.ru.
+- httpx + BeautifulSoup для скрейпинга
+- PostgreSQL (таблица `docs_articles`)
+- Cron через Docker + FastAPI эндпоинт `/parse`
 
 ---
 

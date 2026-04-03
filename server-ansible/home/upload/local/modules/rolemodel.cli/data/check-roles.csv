@@ -1,0 +1,11 @@
+position,department,bitrix24,crm,1c_ka,1c_zup,vpn,rdp_buh_folder,rdp_it_folder,snipeit,gitea,zabbix,telegram_bot,email_corporate,shared_calendar,tasks,reports_crm,reports_finance,reports_hr,ad_management,server_access
+Менеджер по продажам,Отдел продаж,true,true,false,false,true,false,false,false,false,false,true,true,true,true,true,false,false,false,false
+Бухгалтер,Бухгалтерия,true,false,true,true,false,true,false,false,false,false,false,true,true,false,false,true,false,false,false
+Системный администратор,ИТ-отдел,true,false,true,false,true,true,true,true,true,true,false,true,true,true,false,false,false,true,true
+Менеджер по закупкам,Отдел снабжения,true,true,true,false,true,false,false,false,false,false,true,true,true,true,false,false,false,false,false
+Руководитель отдела продаж,Отдел продаж,true,true,true,false,true,false,false,false,false,false,true,true,true,true,true,true,false,false,false
+HR-менеджер,Отдел кадров,true,false,false,true,false,false,false,false,false,false,false,true,true,true,false,false,true,false,false
+Финансовый директор,Финансовый отдел,true,true,true,true,true,true,false,false,false,false,false,true,true,true,true,true,true,false,false
+Менеджер проекта,Проектный отдел,true,true,false,false,true,false,false,false,false,false,true,true,true,true,true,false,false,false,false
+Складской работник,Склад,true,false,true,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false
+Генеральный директор,Руководство,true,true,true,true,true,true,true,false,false,true,true,true,true,true,true,true,true,false,false

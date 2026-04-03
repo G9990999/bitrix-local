@@ -48,6 +48,8 @@ $commands = [
     'bx:user-sync'       => \RoleModel\Cli\Commands\UserSyncCommand::class,
     'bx:cache-clear'     => \RoleModel\Cli\Commands\CacheClearCommand::class,
     'bx:webhook-reg'     => \RoleModel\Cli\Commands\WebhookRegCommand::class,
+    'bx:parser'          => \RoleModel\Cli\Commands\ParserCommand::class,
+    'bx:role'            => \RoleModel\Cli\Commands\RoleTableCommand::class,
 ];
 
 if ($command === 'help' || $command === '--help' || $command === '-h') {
@@ -66,6 +68,13 @@ if ($command === 'help' || $command === '--help' || $command === '-h') {
     echo "  bx:cache-clear       Очистить кеш Битрикса\n";
     echo "  bx:webhook-reg       Зарегистрировать вебхуки\n";
     echo "  bx:health            Проверить доступность Dex, Gitea и ядра\n";
+    echo "  bx:parser            Управление подписками парсера данных\n";
+    echo "                       bx bx:parser             — список подписанных сервисов\n";
+    echo "                       bx bx:parser tender-bot  — подписать сервис + webhook\n";
+    echo "  bx:role              Управление каталогом должностей и ролей доступа\n";
+    echo "                       bx bx:role               — список должностей\n";
+    echo "                       bx bx:role install       — загрузить из CSV\n";
+    echo "                       bx bx:role generator     — генерация прав через GigaChat\n";
     echo "\nИспользование / Usage:\n";
     //echo "  docker exec -it bitrix-php php /var/www/html/local/modules/rolemodel.cli/cli.php <command>\n";
     ob_end_flush();
@@ -85,8 +94,9 @@ if (!isset($commands[$command])) {
 try {
     $class = $commands[$command];
     
-    // Подключаем ядро только если это НЕ установка и НЕ регистрация вебхуков
-    if ($command !== 'bx:install' && $command !== 'bx:webhook-reg') {
+    // Подключаем ядро только если это НЕ установка и НЕ команды с прямым PostgreSQL
+    $noCoreCmds = ['bx:install', 'bx:webhook-reg', 'bx:parser', 'bx:role'];
+    if (!in_array($command, $noCoreCmds, true)) {
         
         $prolog = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php";
         if (file_exists($prolog)) {
