@@ -154,10 +154,25 @@ Prometheus :9090
 ### Этап 4 — Управление правами доступа (RoleModel) 🔐 (в работе)
 - [x] Структура ролей (25+ ролей: Администратор, Бухгалтер, Менеджер, Кладовщик и др.)
 - [x] Docker-сервис RoleModel UI (React + shadcn/ui, порт 3100)
+- [x] `bx:role` — команда управления каталогом должностей (install, generator)
+- [x] `check-roles.csv` — матрица прав для 10 должностей
+- [x] GigaChat-генерация прав доступа (bx:role generator)
+- [x] PostgreSQL таблицы b_roles, b_role_access
 - [ ] Умное поле ввода запроса (scikit-learn парсинг)
-- [ ] Генерация JSON-конфигов ролевых групп
-- [ ] Загрузка через manager.ts + отображение прав
-- [ ] Привязка сотрудников из Bitrix-24 CRM к ролям
+- [ ] Привязка сотрудников из Bitrix-24 CRM к ролям через AD
+
+### Этап 4.1 — SnipeIT интеграция 🔧 (выполнено)
+- [x] Bitrix-модуль snipeit.itrix (D7 ORM: Asset, License, UserAssignment)
+- [x] Сервисный слой: AssetService, LicenseService, AssignmentService
+- [x] Аудит назначений (кто имеет доступ к чему)
+- [x] Admin Dashboard: Vite + React + HeroUI (порт 5173)
+- [x] Страницы: Дашборд, Активы, Лицензии, Пользователи, Роли, Аудит
+
+### Этап 4.2 — Парсер и тестирование 🤖 (выполнено)
+- [x] `bx:parser` — команда подписки сервисов на парсинг
+- [x] docs-parser сервис (httpx + BeautifulSoup → PostgreSQL docs_articles)
+- [x] chatbot.test — модуль тестирования tender-bot (pytest, unit + integration)
+- [x] Тестирование сценариев GigaChat, Bitrix webhook-обработчика
 
 ### Этап 5 — Авторизация через Dex (без Kubernetes) 🔑 (исследование)
 - [ ] Эксперимент: Dex standalone (без K8s) как единый OAuth2-провайдер
