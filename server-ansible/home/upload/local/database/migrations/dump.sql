@@ -1,5 +1,5 @@
 -- ==========================================================
--- СТРУКТУРА (Нижний регистр для имен D7 core)
+-- СТРУКТУРА (Нижний регистр для имен)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS b_sec_wwall_rules (
   id SERIAL PRIMARY KEY,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS b_culture (
   name varchar(255) NOT NULL,
   code varchar(50),
   format_date varchar(50) DEFAULT 'DD.MM.YYYY',
-  format_datetime varchar(50) DEFAULT 'DD.MM.YYYY HH:MI:SS',
+  format_datetime varchar(50) DEFAULT 'DD.MM.YYYY HH:MI:SS', -- ЭТО ПОЛЕ ОШИБКА И ИСКАЛА
   format_name varchar(255) DEFAULT '#NAME# #LAST_NAME#',
   week_start integer DEFAULT 1,
   charset varchar(50) DEFAULT 'UTF-8',
@@ -175,6 +175,13 @@ DO UPDATE SET value = EXCLUDED.value;
 -- ==========================================================
 -- ВЕБХУКИ (REST EVENTS)
 -- ==========================================================
+-- Таблица для очереди вебхуков
+CREATE TABLE IF NOT EXISTS rolemodel_webhook_queue (
+    id SERIAL PRIMARY KEY,
+    event_name varchar(100) NOT NULL,
+    payload jsonb,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
 
 -- 1. Убедимся, что таблица существует (минимальный набор полей для работы)
 CREATE TABLE IF NOT EXISTS b_rest_event (
@@ -192,12 +199,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_b_rest_event_handler ON b_rest_event (event
 
 -- 3. Наполнение данными
 INSERT INTO b_rest_event (event_name, handler, user_id) VALUES 
-  ('ONCRMDEALADD',    'http://localhost', 1),
-  ('ONCRMDEALUPDATE', 'http://localhost', 1),
-  ('ONCRMDEALDELETE', 'http://localhost', 1)
+  ('ONCRMDEALADD',    'http://127.0.0.1', 1),
+  ('ONCRMDEALUPDATE', 'http://127.0.0.1', 1),
+  ('ONCRMDEALDELETE', 'http://127.0.0.1', 1)
 ON CONFLICT (event_name, handler) DO NOTHING;
 
 -- Синхронизация счетчиков
 SELECT setval(pg_get_serial_sequence('b_rest_event', 'id'), coalesce(max(id), 1)) FROM b_rest_event;
 SELECT setval(pg_get_serial_sequence('b_culture', 'id'), coalesce(max(id), 1)) FROM b_culture;
 SELECT setval(pg_get_serial_sequence('b_user', 'id'), coalesce(max(id), 1)) FROM b_user;
+-- Ставим дату установки на 01.05.2026 (timestamp 1777593600)

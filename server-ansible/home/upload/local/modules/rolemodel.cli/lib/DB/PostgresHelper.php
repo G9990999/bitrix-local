@@ -14,6 +14,9 @@ class PostgresHelper
         // 2. Правим типы
         '/int\(\d+\) NOT NULL AUTO_INCREMENT/i' => 'SERIAL PRIMARY KEY',
         '/int\(\d+\)/i' => 'integer',
+        '/longtext/i'   => 'text',
+        '/mediumtext/i' => 'text',
+        '/tinyint\(1\)/i' => 'smallint',
         '/\s+datetime/i' => ' timestamp', 
         
         // 3. Убираем обратные кавычки

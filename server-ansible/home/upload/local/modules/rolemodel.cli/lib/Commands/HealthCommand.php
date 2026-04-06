@@ -12,8 +12,8 @@ class HealthCommand extends BaseCommand
     {
         $this->info("Проверка работоспособности системы...\n");
 
-        $dexIssuer  = getenv('OIDC_ISSUER') ?: 'http://localhost:5556/dex';
-        $giteaUrl   = getenv('GITEA_URL')   ?: 'http://localhost:3000';
+        $dexIssuer  = getenv('OIDC_ISSUER') ?: 'http://10.100.2.174:5556/dex';
+        $giteaUrl   = getenv('GITEA_URL')   ?: 'http://10.100.2.174:3000';
 
         $checks = [
             'Bitrix Core'  => [$this, 'checkBitrixCore'],

@@ -10,7 +10,7 @@ use RoleModel\Cli\BaseCommand;
  *   php cli.php bx:user-sync
  *
  * Требуется / Requires:
- *   OIDC_ISSUER env var pointing to Dex (e.g. http://localhost:5556/dex)
+ *   OIDC_ISSUER env var pointing to Dex (e.g. http://10.100.2.174:5556/dex)
  *   BITRIX_WEBHOOK_URL env var for fetching CRM users
  */
 class UserSyncCommand extends BaseCommand

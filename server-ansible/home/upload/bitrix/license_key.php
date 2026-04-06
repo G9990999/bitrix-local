@@ -1,0 +1,3 @@
+<?php 
+$LICENSE_KEY = 'S24-NA-K9R3F5J7H2L1M0W4'; 
+?>

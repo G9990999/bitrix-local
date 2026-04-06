@@ -79,7 +79,20 @@ class InstallCommand extends BaseCommand
             if (class_exists('\Bitrix\Main\ModuleManager')) {
                 \Bitrix\Main\ModuleManager::registerModule('rolemodel.cli');
             }
+
+            // Очищаем всё, что Битрикс успел наплевать в буфер во время загрузки
+            //ob_clean();
+
+            // Финальный диагностический вывод в стиле Elixir (чистый stdout)
+            //echo json_encode(['status' => 'ok', 'message' => 'Module installed successfully'], JSON_UNESCAPED_UNICODE) . "\n";
+            
+            // Превентивный выход, чтобы ядро не успело ничего вывести после работы скрипта
+            //exit(0);
+
         } catch (\Throwable $e) {
+            //ob_end_clean();
+            //$this->error("Критическая ошибка ядра: " . $e->getMessage());
+            //return 1;
             while (ob_get_level() > 0) ob_end_clean();
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]) . "\n";
         }

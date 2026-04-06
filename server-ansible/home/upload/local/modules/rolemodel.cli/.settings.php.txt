@@ -1,0 +1,9 @@
+<?
+// /local/modules/rolemodel.cli/.settings.php
+return [
+    'cli.commands' => [
+        'value' => [
+            'rolemodel:my-command' => \RoleModel\Cli\Commands\MyCommand::class,
+        ],
+    ],
+];

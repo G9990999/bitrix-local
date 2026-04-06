@@ -5,41 +5,44 @@ use Bitrix\Main\DB\PgsqlConnection;
 use Bitrix\Main\Diag\SqlTrackerQuery;
 
 /**
- * Адаптер на базе родного PgsqlConnection.
- * Исправляет конфликты регистра имен между Bitrix (UPPER) и Postgres (lower).
+ * Адаптер на базе PgsqlConnection.
+ * Усыпляет проверку лицензии и исправляет SQL-совместимость.
  */
 class PostgresAdapter extends PgsqlConnection
 {
-    /**
-     * Переопределяем выполнение запроса, чтобы убрать кавычки.
-     * Это заставит Postgres игнорировать регистр (case-insensitive).
-     */
     protected function queryInternal($sql, array $binds = null, SqlTrackerQuery $trackerQuery = null)
     {
-        // Удаляем любые кавычки (обратные MySQL и двойные Bitrix).
-        // Теперь SELECT "NAME" FROM "b_option" станет SELECT NAME FROM b_option,
-        // и Postgres успешно найдет колонки, даже если они в нижнем регистре.
-        //$sql = str_replace(['`', '"'], '', (string)$sql);
-        $sql = str_replace('`', '', (string)$sql);
+        $sql = (string)$sql;
 
+        // 1. ПЕРЕХВАТ ЛИЦЕНЗИИ (Групповой запрос опций модуля main)
+            if (stripos($sql, "b_option") !== false && stripos($sql, "main") !== false) {
+        // Мы возвращаем ТОЛЬКО наши 2 записи. Битрикс этого достаточно для старта.
+        $sql = "SELECT 'install_date' as NAME, '1893456000' as VALUE 
+                UNION ALL 
+                SELECT 'admin_passwordh' as NAME, '1893456000' as VALUE";
+        
+          file_put_contents($_SERVER["DOCUMENT_ROOT"] . '/sql-admin.log', ">>> HARD OVERRIDE <<<\n", FILE_APPEND);
+        }
+
+        // 2. ОЧИСТКА SQL (Убираем кавычки, чтобы Postgres не капризничал с регистром)
+        // Сначала MySQL-бэктики, затем двойные кавычки D7
+        $sql = str_replace(['`', '"'], '', $sql);
+
+        // 3. ХАК: Исправляем пустой INSERT (MySQL: VALUES () -> Postgres: DEFAULT VALUES)
+        if (stripos($sql, 'VALUES ()') !== false) {
+            $sql = preg_replace('/INSERT INTO ([a-z0-9_]+)\s*\(\)\s*VALUES\s*\(\)/i', 'INSERT INTO $1 DEFAULT VALUES', $sql);
+        }
+
+        // Логируем итоговый запрос для отладки
         file_put_contents(
-          '/var/www/html/sql.log', 
-          "[" . date('H:i:s') . "] " . $sql . "\n", 
-          FILE_APPEND
+            $_SERVER["DOCUMENT_ROOT"] . '/sql.log', 
+            "[" . date('H:i:s') . "] " . $sql . "\n", 
+            FILE_APPEND
         );
 
-        if (stripos($sql, "admin_passwordh") !== false && stripos($sql, "SELECT") !== false) {
-          $sql = "SELECT 'main' as MODULE_ID, 'admin_passwordh' as NAME, '1774828800' as VALUE";
-        }
-
-        // ХАК: Исправляем пустой INSERT Битрикса для Postgres
-        if (stripos($sql, 'VALUES ()') !== false) {
-          $sql = preg_replace('/INSERT INTO ([a-z0-9_]+)\s*\(\)\s*VALUES\s*\(\)/i', 'INSERT INTO $1 DEFAULT VALUES', $sql);
-        }
-
-        // Используем родительский метод выполнения
         return parent::queryInternal($sql, $binds, $trackerQuery);
     }
+}
 
     /**
      * Оставляем для совместимости со старым ядром ($DB)
@@ -54,4 +57,3 @@ class PostgresAdapter extends PgsqlConnection
         return $db;
     }
     */
-}
