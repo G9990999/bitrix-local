@@ -183,6 +183,39 @@ CREATE TABLE IF NOT EXISTS rolemodel_webhook_queue (
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Таблица связей модулей (зависимости)
+CREATE TABLE IF NOT EXISTS b_module_to_module (
+  id SERIAL PRIMARY KEY,
+  timestamp_x timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  sort integer DEFAULT 100,
+  from_module_id varchar(50) NOT NULL,
+  message_id varchar(255),
+  to_module_id varchar(50) NOT NULL,
+  to_path varchar(255),
+  to_class varchar(255),
+  to_method varchar(255),
+  to_method_arg varchar(255),
+  version varchar(20), -- Поле, на которое он ругается сейчас
+  unique_id varchar(32) -- Поле "на будущее", часто используется для хэширования
+);
+
+-- Таблица агентов (нужна для работы ядра, даже если они выключены)
+CREATE TABLE IF NOT EXISTS b_agent (
+  id SERIAL PRIMARY KEY,
+  module_id varchar(50),
+  callback_func varchar(255) NOT NULL,
+  active char(1) NOT NULL DEFAULT 'Y',
+  last_exec timestamp,
+  next_exec timestamp NOT NULL,
+  date_check timestamp,
+  agent_interval integer DEFAULT 86400,
+  is_period char(1) DEFAULT 'N',
+  user_id integer
+);
+
+-- Уникальный индекс для связей
+CREATE UNIQUE INDEX IF NOT EXISTS ux_m2m_full ON b_module_to_module (from_module_id, to_module_id, to_class, to_method, unique_id);
+
 -- 1. Убедимся, что таблица существует (минимальный набор полей для работы)
 CREATE TABLE IF NOT EXISTS b_rest_event (
   id SERIAL PRIMARY KEY,

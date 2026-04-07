@@ -60,4 +60,5 @@ return [
         ],
         'readonly' => true,
     ],
+    'install' => ['value' => ['database' => 'postgres'], 'readonly' => true],
 ];

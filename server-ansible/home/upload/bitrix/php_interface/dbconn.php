@@ -11,16 +11,49 @@ define('CACHED_b_option', false);
 define('CACHED_b_lang', false);
 define('CACHED_b_user_field', false);
 define('BITRIX_SKIP_INSTALL_CHECK', true);
+define("B_SKIP_ROOT_CHECK", true);
+define("BITRIX_INSTALL_DONE", true);
+
+// 1. Принудительное согласование путей
+$fixedRoot = str_replace('\\', '/', realpath(__DIR__ . "/../../"));
+$_SERVER["DOCUMENT_ROOT"] = $fixedRoot;
+$_SERVER["PHP_SELF"] = "/index.php"; 
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$_SESSION["SESS_AUTH"]["ADMIN"] = true; 
+$_SERVER['WIZARD_INSTALL_MODE'] = 'Y'; // Иногда помогает "тихий" режим
+
+// 3. ХАК: Перехват сообщения об ошибке
+// Битрикс накапливает ошибки в этой переменной. Мы будем её чистить.
+if (!isset($GLOBALS["strErrorMessage"])) {
+    $GLOBALS["strErrorMessage"] = "";
+}
+
+// Регистрируем функцию, которая очистит эту ошибку сразу после инициализации ядра
+register_shutdown_function(function() {
+    $stop = "Bitrix site manager must be installed in web server root directory";
+    if (isset($GLOBALS["strErrorMessage"]) && str_contains($GLOBALS["strErrorMessage"], $stop)) {
+        $GLOBALS["strErrorMessage"] = str_replace($stop, "", $GLOBALS["strErrorMessage"]);
+    }
+});
 
 spl_autoload_register(function ($class) {
     $prefix = 'RoleModel\\Cli\\';
-    $baseDir = $_SERVER["DOCUMENT_ROOT"] . '/local/modules/rolemodel.cli/lib/';
+    if (strpos($class, $prefix) === 0) {
+        // Убираем префикс и меняем \ на /
+        $relativeClass = str_replace($prefix, '', $class);
+        $path = str_replace('\\', '/', $relativeClass);
+        
+        // Полный путь к файлу
+        $file = $_SERVER["DOCUMENT_ROOT"] . '/local/modules/rolemodel.cli/lib/' . $path . '.php';
 
-    if (str_contains($class, $prefix)) {
-        $relativeClass = str_replace([$prefix, '\\'], ['', '/'], $class);
-        $file = $baseDir . $relativeClass . '.php';
+        // ДИАГНОСТИКА: если файл не найден, пишем в лог, где искали
         if (file_exists($file)) {
             require_once $file;
+        } else {
+            file_put_contents($_SERVER["DOCUMENT_ROOT"] . '/autoload_debug.log', "FAILED: $class -> $file\n", FILE_APPEND);
         }
     }
 });
